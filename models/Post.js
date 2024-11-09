@@ -9,11 +9,9 @@ const postSchema = new Schema({
         type: String,
         required: true
     },
-    likes: Number,
     userID: {
         type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+        ref: "User"
     }
 })
 
