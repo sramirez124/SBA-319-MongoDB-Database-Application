@@ -12,12 +12,13 @@ console.log('Connected to Mongo!')
 // Pulling in User Model
 import User from './models/User.js'
 import Post from './models/Post.js'
+import Comment from './models/Comment.js';
 
 
 app.use(express.json())
 
 
-// Get all users
+// Get routes
 app.get('/users', async (req, res) => {
   try {
     const users = await User.find({});
@@ -37,7 +38,28 @@ app.get('/users/:id', async (req, res) => {
   }
 })
 
+// Get User posts
+app.get('/users/:id/posts', async (req, res) => {
+        try {
+          const user = await User.findById(req.params.id).populate("posts")
+          res.status(200).json(user)
+        } catch (err) {
+          res.send(err).status(400)
+        }
+      })
 
+// Get User comments
+app.get('/users/:id/comments', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).populate("comments")
+    res.status(200).json(user)
+  } catch (err) {
+    res.send(err).status(400)
+  }
+})
+
+
+// Post Routes
 // Create User
 app.post('/users', async (req, res) => {
   try {
@@ -47,17 +69,6 @@ app.post('/users', async (req, res) => {
     res.send(err).status(400)
   }
 })
-
-// Get User posts
-app.get('/users/:id/posts', async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).populate("posts")
-    res.status(200).json(user)
-  } catch (err) {
-    res.send(err).status(400)
-  }
-})
-
 
 // Create a post 
 app.post("/posts/:userId", async (req, res) => {
@@ -95,6 +106,8 @@ app.put('/users/:id', async (req, res) => {
 app.delete('/users/:id', async (req, res) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id)
+    const deletedUserPost = await Post.deleteMany({ userId: req.params.id })
+    
     res.status(200).json(deletedUser)
   } catch (err) {
     res.send(err).status(400)
